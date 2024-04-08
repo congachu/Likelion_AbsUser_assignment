@@ -1,0 +1,12 @@
+<h1>새 댓글 작성하기</h1>
+<form
+  action="{%url 'create_comment' blog.id %}"
+  method="POST"
+  enctype="multipart/form-data"
+>
+  {% csrf_token %} 댓글 :
+  <textarea name="content" id="" cols="30" rows="10"></textarea>
+  <input type="submit" value="댓글 달기" />
+</form>
+
+<a href="{% url 'home' %}">홈</a>

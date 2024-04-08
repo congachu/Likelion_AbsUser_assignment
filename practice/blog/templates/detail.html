@@ -1,0 +1,36 @@
+<h1>블로그 상세 페이지</h1>
+<br />
+<hr />
+<h2>{{blog.title}}</h2>
+<hr />
+{% if tags %}
+    <h2>태그</h2>
+    <div style="display: flex">
+        {% for tag in tags %}
+            <p>{{ tag }}</p>&nbsp;
+        {% endfor %}
+    </div>
+{% endif %}
+
+<hr />
+<p>{{blog.content}}</p>
+
+{% if blog.image %}
+<img src="{{blog.image.url}}" alt="이미지" />
+{% endif %}
+
+<p>{{blog.created_at}}</p>
+
+<a href="{% url 'home' %}">홈</a>
+<a href="{% url 'edit' blog.id %}">수정하기</a>
+<a href="{% url 'delete' blog.id %}">삭제하기</a>
+{#comment: 댓글 주석 해제#}
+{#<a href="{% url 'new_comment' blog.id %}">댓글 달기</a>#}
+
+{% if comments %}
+    {% for comment in comments %}
+    <hr />
+    <p>{{comment.content}}</p>
+    <p>{{comment.created_at}} 댓글쓴이: {{ comment.author }}</p>
+    {% endfor %}
+{% endif %}
