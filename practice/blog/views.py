@@ -75,3 +75,13 @@ def create_comment(request, blog_id):
 def new_comment(request, blog_id):
     blog = get_object_or_404(Blog, pk=blog_id)
     return render(request, 'new_comment.html', {'blog':blog})
+
+def like(request, blog_id):
+    if request.user.is_authenticated:
+        blog = get_object_or_404(Blog, pk=blog_id)
+        if blog.like_user.filter(pk=request.user.pk).exists():
+            blog.like_user.remove(request.user)
+        else:
+            blog.like_user.add(request.user)
+        return redirect('detail', blog_id)
+    return redirect('login')

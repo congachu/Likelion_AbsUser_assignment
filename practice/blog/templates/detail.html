@@ -21,6 +21,18 @@
 
 <p>{{blog.created_at}}</p>
 
+<div>
+    좋아요 {{blog.like_user.all|length}}
+    <form action="{% url 'like' blog.id%}" method="POST">
+        {% csrf_token %}
+        {% if user in blog.like_user.all %}
+        <input type="submit" value="좋아요 취소">
+        {% else %}
+        <input type="submit" value="좋아요">
+        {% endif %}
+    </form>
+</div>
+
 <a href="{% url 'home' %}">홈</a>
 <a href="{% url 'edit' blog.id %}">수정하기</a>
 <a href="{% url 'delete' blog.id %}">삭제하기</a>
