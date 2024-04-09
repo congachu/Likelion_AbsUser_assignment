@@ -1,6 +1,6 @@
 from django.shortcuts import render,get_object_or_404,redirect
 from django.core.paginator import Paginator
-from .models import Blog
+from .models import Blog, Comment, Tag
 from .forms import BlogForm
 
 
@@ -13,21 +13,32 @@ def home(request):
 
 def detail(request, blog_id):
     blog = get_object_or_404(Blog, pk=blog_id)
-    return render(request,'detail.html',{'blog':blog})
+    comments = Comment.objects.filter(blog=blog)
+    tags = blog.tag.all()
+    return render(request,'detail.html',{'blog':blog, 'comments':comments, 'tags': tags})
 
 def new(request):
-    return render(request,'new.html')
+    tags = Tag.objects.all()
+    return render(request,'new.html', {'tags': tags})
 
 def create(request):
     new_blog = Blog()
     new_blog.title = request.POST.get('title')
     new_blog.content = request.POST.get('content')
     new_blog.image = request.FILES.get('image')
+    new_blog.author = request.user
     new_blog.save()
+    #태그를 불러와 각각 id에 해당하는 태그를 불러와 추가
+    tags = request.POST.get('tags')
+    for tag_id in tags:
+        tag = Tag.objects.get(id=tag_id)
+        new_blog.tag.add(tag)
     return redirect('detail', new_blog.id)
 
 def edit(request, blog_id):
     edit_blog = get_object_or_404(Blog, pk=blog_id)
+    if edit_blog.author != request.user:
+        return redirect('home')
     return render(request, 'edit.html', {'edit_blog':edit_blog})
 
 
@@ -51,3 +62,16 @@ def delete(request, blog_id):
     delete_blog = get_object_or_404(Blog, pk=blog_id)
     delete_blog.delete()
     return redirect('home')
+
+def create_comment(request, blog_id):
+    comment = Comment()
+    comment.content = request.POST.get('content')
+    comment.blog = get_object_or_404(Blog, pk=blog_id)
+    comment.author = request.user
+    comment.save()
+
+    return redirect('detail', blog_id)
+
+def new_comment(request, blog_id):
+    blog = get_object_or_404(Blog, pk=blog_id)
+    return render(request, 'new_comment.html', {'blog':blog})
