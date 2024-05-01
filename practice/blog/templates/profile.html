@@ -8,4 +8,6 @@
 <p>이름: {{user_info.username}}</p>
 <p>소속: {{user_info.organization}}</p>
 <p>생성일: {{user_info.created_at}}</p>
+<a href="{% url 'home' %}">홈</a>
+<a href="{% url 'edit-profile' user_info.id%}">수정하기</a>
 {% endblock %}

@@ -1,0 +1,10 @@
+<h1>사용자 정보 수정</h1>
+
+<form method="POST" action="{% url 'edit-profile' user_info.id %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    이름: <input type="text" name="username" value="{{user_info.username}}" /><br>
+    소속: <input type="text" name="organization" value="{{user_info.organization}}" /><br>
+    <input type="submit" value="수정하기" />
+</form>
+
+<a href="{% url 'profile' user_info.id%}">돌아가기</a>

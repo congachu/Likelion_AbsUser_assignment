@@ -135,3 +135,12 @@ def logout(request):
 def profile (request, user_id):
     user = get_object_or_404(User, pk=user_id)
     return render(request, 'profile.html', {'user_info':user})
+
+def edit_profile(request, user_id):
+    old_info = get_object_or_404(User, pk=user_id)
+    if request.method == 'POST':
+        old_info.username = request.POST.get('username')
+        old_info.organization = request.POST.get('organization')
+        old_info.save()
+        return redirect('profile', user_id)
+    return render(request, 'edit_profile.html', {'user_info':old_info})
