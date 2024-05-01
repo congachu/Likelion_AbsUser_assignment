@@ -1,7 +1,10 @@
 from django.shortcuts import render,get_object_or_404,redirect
 from django.core.paginator import Paginator
-from .models import Blog, Comment, Tag
+from .models import User
+from .models import Blog, Comment, Tag, Profile
 from .forms import BlogForm
+from django.contrib import auth
+from django.contrib.auth import authenticate
 
 
 def home(request):
@@ -77,11 +80,58 @@ def new_comment(request, blog_id):
     return render(request, 'new_comment.html', {'blog':blog})
 
 def like(request, blog_id):
+    #로그인 상태인지
     if request.user.is_authenticated:
         blog = get_object_or_404(Blog, pk=blog_id)
+        #만약 이 블로그 좋아요 목록에 해당 유저가 존재한다면
         if blog.like_user.filter(pk=request.user.pk).exists():
             blog.like_user.remove(request.user)
         else:
             blog.like_user.add(request.user)
         return redirect('detail', blog_id)
     return redirect('login')
+
+def signup(request):
+    if request.method == "POST":
+        #비밀번호 일치 확인
+        if request.POST['password1'] == request.POST['password2']:
+            user = User.objects.create_user(
+                username = request.POST['username'],
+                password = request.POST['password1'],
+                email = request.POST['email'],
+                organization = request.POST['organization'])
+
+            profile = Profile(
+                user=user,
+                nickname = request.POST['nickname'],
+                image = request.FILES.get('profile_image'),)
+
+            profile.save()
+
+            auth.login(request, user)
+
+            return redirect('home')
+        #비밀번호 일치하지 않을 때
+        return render(request, 'signup.html')
+    #포스트 요청이 아닐 때
+    return render(request, 'signup.html')
+
+def login(request):
+    if request.method == "POST":
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            auth.login(request, user)
+            return redirect('home')
+        return render(request, "login.html")
+    return render(request, "login.html")
+
+def logout(request):
+    auth.logout(request)
+    return redirect('home')
+
+def profile (request, user_id):
+    user = get_object_or_404(User, pk=user_id)
+    return render(request, 'profile.html', {'user_info':user})
